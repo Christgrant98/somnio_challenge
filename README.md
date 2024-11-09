@@ -17,6 +17,7 @@ Below are details about the project structure, instructions to run the app and t
 
 The project follows a feature-based folder structure, where each main functionality of the app is organized into its own module. Here’s the main structure:
 
+```
 lib/
 ├── core/
 │   ├── routes/
@@ -59,7 +60,7 @@ lib/
 │               └── post_card.dart    # Widget for displaying individual post cards
 ├── main.dart                         # Main entry point
 └── sommnio_app.dart                  # Initial app configuration
-
+```
 
 ### Explanation of Key Directories
 
