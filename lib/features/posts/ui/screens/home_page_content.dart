@@ -69,7 +69,7 @@ class HomePageContentState extends State<HomePageContent> {
         crossAxisCount: 2,
         crossAxisSpacing: 4,
         mainAxisSpacing: 10,
-        mainAxisExtent: size.height * 0.55,
+        mainAxisExtent: size.height * 0.525,
       ),
       delegate: SliverChildBuilderDelegate(
         (context, index) {

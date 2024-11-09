@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
 
 import '../models/post_model.dart';
-import '../providers/api_provider.dart';
+import '../services/post_services.dart';
 
 class PostRepository {
   final ApiProvider apiProvider = ApiProvider();
