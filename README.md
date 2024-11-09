@@ -74,6 +74,12 @@ lib/
 
 To run the app on an emulator or connected device:
 
+isntall dependencies (packages) 
+```bash
+flutter pub get
+```
+
+then, run the project
 ```bash
 flutter run
 ```
