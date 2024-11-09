@@ -1,4 +1,8 @@
 import 'package:challenge_somnio/core/themes/app_theme.dart';
+import 'package:challenge_somnio/core/widgets/empty_state_widget.dart';
+import 'package:challenge_somnio/core/widgets/error_display_widget.dart';
+import 'package:challenge_somnio/core/widgets/loading_indicator.dart';
+import 'package:challenge_somnio/core/widgets/sommnio_sliver_app_bar.dart';
 import 'package:challenge_somnio/features/posts/data/models/post_model.dart';
 import 'package:challenge_somnio/features/posts/ui/widgets/post_card.dart';
 import 'package:challenge_somnio/features/posts/logic/post_cubit.dart';
@@ -30,53 +34,54 @@ class HomePageContentState extends State<HomePageContent> {
       slivers: [
         const SommnioSliverAppBar(),
         SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.all(15),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Blog',
-                  style: AppTheme.style.subtitle.copyWith(
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Explore our latest posts and updates',
-                  style: AppTheme.style.body,
-                ),
-              ],
+          child: _buildHeader(),
+        ),
+        _postBuilder(size),
+      ],
+    );
+  }
+
+  Padding _buildHeader() {
+    return Padding(
+      padding: const EdgeInsets.all(15),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Blog',
+            style: AppTheme.style.subtitle.copyWith(
+              fontWeight: FontWeight.w800,
             ),
           ),
-        ),
-        BlocBuilder<PostCubit, PostState>(
-          builder: (context, state) {
-            if (state.status == PostStatus.indexLoading &&
-                state.posts.isEmpty) {
-              return const SliverFillRemaining(
-                child: Center(child: CircularProgressIndicator()),
-              );
-            } else if (state.status == PostStatus.indexFailure) {
-              return SliverFillRemaining(
-                child: Center(
-                  child: Text(
-                    'Error: ${state.error}',
-                    style: AppTheme.style.error,
-                  ),
-                ),
-              );
-            } else if (state.status == PostStatus.indexSuccess ||
-                state.posts.isNotEmpty) {
-              return _buildPostGrid(size, posts: state.posts);
-            } else {
-              return const SliverFillRemaining(
-                child: Center(child: Text('No posts available')),
-              );
-            }
-          },
-        ),
-      ],
+          const SizedBox(height: 8),
+          Text(
+            'Explore our latest posts and updates',
+            style: AppTheme.style.body,
+          ),
+        ],
+      ),
+    );
+  }
+
+  BlocBuilder<PostCubit, PostState> _postBuilder(Size size) {
+    return BlocBuilder<PostCubit, PostState>(
+      builder: (context, state) {
+        if (state.status == PostStatus.indexLoading && state.posts.isEmpty) {
+          return const SliverFillRemaining(
+            child: LoadingIndicator(),
+          );
+        } else if (state.status == PostStatus.indexFailure) {
+          return SliverFillRemaining(
+              child: ErrorDisplayWidget(errorMessage: state.error!));
+        } else if (state.status == PostStatus.indexSuccess ||
+            state.posts.isNotEmpty) {
+          return _buildPostGrid(size, posts: state.posts);
+        } else {
+          return const SliverFillRemaining(
+            child: EmptyStateWidget(),
+          );
+        }
+      },
     );
   }
 
@@ -93,33 +98,6 @@ class HomePageContentState extends State<HomePageContent> {
           return PostCard(post: posts[index]);
         },
         childCount: posts.length,
-      ),
-    );
-  }
-}
-
-class SommnioSliverAppBar extends StatelessWidget {
-  const SommnioSliverAppBar({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final size = MediaQuery.sizeOf(context);
-    return SliverAppBar(
-      toolbarHeight: size.height * .01,
-      backgroundColor: AppTheme.colors.appBlue.color100,
-      floating: true,
-      pinned: false,
-      bottom: PreferredSize(
-        preferredSize: Size.fromHeight(size.height * .05),
-        child: TabBar(
-          labelStyle: AppTheme.style.subtitle,
-          tabs: const [
-            Tab(text: 'Posts'),
-            Tab(text: 'Other'),
-          ],
-        ),
       ),
     );
   }
