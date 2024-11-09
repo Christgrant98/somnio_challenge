@@ -41,28 +41,6 @@ class HomePageContentState extends State<HomePageContent> {
     );
   }
 
-  Padding _buildHeader() {
-    return Padding(
-      padding: const EdgeInsets.all(15),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Blog',
-            style: AppTheme.style.subtitle.copyWith(
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Explore our latest posts and updates',
-            style: AppTheme.style.body,
-          ),
-        ],
-      ),
-    );
-  }
-
   BlocBuilder<PostCubit, PostState> _postBuilder(Size size) {
     return BlocBuilder<PostCubit, PostState>(
       builder: (context, state) {
@@ -98,6 +76,28 @@ class HomePageContentState extends State<HomePageContent> {
           return PostCard(post: posts[index]);
         },
         childCount: posts.length,
+      ),
+    );
+  }
+
+  Widget _buildHeader() {
+    return Padding(
+      padding: const EdgeInsets.all(15),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Blog',
+            style: AppTheme.style.subtitle.copyWith(
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Explore our latest posts and updates',
+            style: AppTheme.style.body,
+          ),
+        ],
       ),
     );
   }
