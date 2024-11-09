@@ -1,4 +1,5 @@
 import 'package:challenge_somnio/core/themes/app_theme.dart';
+import 'package:challenge_somnio/features/posts/data/models/post_model.dart';
 import 'package:challenge_somnio/features/posts/ui/widgets/post_card.dart';
 import 'package:challenge_somnio/features/posts/logic/post_cubit.dart';
 import 'package:challenge_somnio/features/posts/logic/post_state.dart';
@@ -13,113 +14,112 @@ class HomePageContent extends StatefulWidget {
 }
 
 class HomePageContentState extends State<HomePageContent> {
-  int _visiblePostCount = 10;
-  final ScrollController _scrollController = ScrollController();
+  late final PostCubit _postCubit;
 
   @override
-  void initState() {
-    super.initState();
-    _fetchInitialPosts();
-
-    _scrollController.addListener(_onScroll);
-  }
-
-  @override
-  void dispose() {
-    _scrollController.removeListener(_onScroll);
-    _scrollController.dispose();
-    super.dispose();
-  }
-
-  void _fetchInitialPosts() {
-    context.read<PostCubit>().fetchPosts();
-  }
-
-  void _onScroll() {
-    if (_scrollController.position.atEdge) {
-      bool isBottom = _scrollController.position.pixels ==
-          _scrollController.position.maxScrollExtent;
-      if (isBottom &&
-          _visiblePostCount < context.read<PostCubit>().state.posts.length) {
-        setState(() {
-          _visiblePostCount += 10;
-        });
-      }
-    }
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _postCubit = context.read<PostCubit>();
+    _postCubit.fetchPosts();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildHeader(),
-        Expanded(
-          child: BlocBuilder<PostCubit, PostState>(
-            builder: (context, state) {
-              if (state.status == PostStatus.indexLoading &&
-                  state.posts.isEmpty) {
-                return const Center(child: CircularProgressIndicator());
-              } else if (state.status == PostStatus.indexFailure) {
-                return Center(child: Text('Error: ${state.error}'));
-              } else if (state.status == PostStatus.indexSuccess ||
-                  state.posts.isNotEmpty) {
-                return _buildPostGrid(state);
-              } else {
-                return const Center(child: Text('No posts available'));
-              }
-            },
+    final size = MediaQuery.sizeOf(context);
+    return CustomScrollView(
+      slivers: [
+        const SommnioSliverAppBar(),
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.all(15),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Blog',
+                  style: AppTheme.style.subtitle.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Explore our latest posts and updates',
+                  style: AppTheme.style.body,
+                ),
+              ],
+            ),
           ),
+        ),
+        BlocBuilder<PostCubit, PostState>(
+          builder: (context, state) {
+            if (state.status == PostStatus.indexLoading &&
+                state.posts.isEmpty) {
+              return const SliverFillRemaining(
+                child: Center(child: CircularProgressIndicator()),
+              );
+            } else if (state.status == PostStatus.indexFailure) {
+              return SliverFillRemaining(
+                child: Center(
+                  child: Text(
+                    'Error: ${state.error}',
+                    style: AppTheme.style.error,
+                  ),
+                ),
+              );
+            } else if (state.status == PostStatus.indexSuccess ||
+                state.posts.isNotEmpty) {
+              return _buildPostGrid(size, posts: state.posts);
+            } else {
+              return const SliverFillRemaining(
+                child: Center(child: Text('No posts available')),
+              );
+            }
+          },
         ),
       ],
     );
   }
 
-  Widget _buildPostGrid(PostState state) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        const double columnWidth = 280;
-        final int crossAxisCount = constraints.maxWidth < 600
-            ? 2
-            : (constraints.maxWidth / columnWidth).floor();
-
-        return GridView.builder(
-          controller: _scrollController,
-          padding: const EdgeInsets.all(8.0),
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: crossAxisCount,
-            crossAxisSpacing: 4,
-            mainAxisSpacing: 10,
-            mainAxisExtent: 500,
-          ),
-          itemCount: _visiblePostCount.clamp(0, state.posts.length),
-          itemBuilder: (context, index) {
-            return PostCard(post: state.posts[index]);
-          },
-        );
-      },
+  Widget _buildPostGrid(Size size, {required List<Post> posts}) {
+    return SliverGrid(
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: 4,
+        mainAxisSpacing: 10,
+        mainAxisExtent: size.height * 0.55,
+      ),
+      delegate: SliverChildBuilderDelegate(
+        (context, index) {
+          return PostCard(post: posts[index]);
+        },
+        childCount: posts.length,
+      ),
     );
   }
+}
 
-  Widget _buildHeader() {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Blog',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Explore our latest posts and updates',
-            style: AppTheme.style.body,
-          ),
-        ],
+class SommnioSliverAppBar extends StatelessWidget {
+  const SommnioSliverAppBar({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.sizeOf(context);
+    return SliverAppBar(
+      toolbarHeight: size.height * .01,
+      backgroundColor: AppTheme.colors.appBlue.color100,
+      floating: true,
+      pinned: false,
+      bottom: PreferredSize(
+        preferredSize: Size.fromHeight(size.height * .05),
+        child: TabBar(
+          labelStyle: AppTheme.style.subtitle,
+          tabs: const [
+            Tab(text: 'Posts'),
+            Tab(text: 'Other'),
+          ],
+        ),
       ),
     );
   }

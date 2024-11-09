@@ -1,5 +1,4 @@
 import 'package:challenge_somnio/core/themes/app_theme.dart';
-import 'package:challenge_somnio/core/widgets/somnio_app_bar.dart';
 import 'package:flutter/material.dart';
 
 class Layout extends StatelessWidget {
@@ -16,7 +15,6 @@ class Layout extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.colors.appNeutralSolid.color25,
-      appBar: const SomnioAppBar(),
       body: body,
     );
   }

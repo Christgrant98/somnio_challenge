@@ -1,4 +1,5 @@
 import 'package:challenge_somnio/features/posts/data/models/post_model.dart';
+import 'package:equatable/equatable.dart';
 
 enum PostStatus {
   initial,
@@ -7,44 +8,37 @@ enum PostStatus {
   indexFailure,
 }
 
-class PostState {
-  final List<Post> posts;
-  final String error;
+class PostState extends Equatable {
   final PostStatus status;
-  final int currentPage;
-  final bool hasReachedMax;
+  final List<Post> posts;
+  final String? error;
 
-  PostState({
-    required this.posts,
-    required this.error,
+  const PostState({
     required this.status,
-    required this.currentPage,
-    required this.hasReachedMax,
+    this.posts = const [],
+    this.error,
   });
 
   factory PostState.initial() {
-    return PostState(
-      posts: [],
-      error: '',
+    return const PostState(
       status: PostStatus.initial,
-      currentPage: 1,
-      hasReachedMax: false,
+      posts: [],
+      error: null,
     );
   }
 
   PostState copyWith({
+    PostStatus? status,
     List<Post>? posts,
     String? error,
-    PostStatus? status,
-    int? currentPage,
-    bool? hasReachedMax,
   }) {
     return PostState(
+      status: status ?? this.status,
       posts: posts ?? this.posts,
       error: error ?? this.error,
-      status: status ?? this.status,
-      currentPage: currentPage ?? this.currentPage,
-      hasReachedMax: hasReachedMax ?? this.hasReachedMax,
     );
   }
+
+  @override
+  List<Object?> get props => [status, posts, error];
 }

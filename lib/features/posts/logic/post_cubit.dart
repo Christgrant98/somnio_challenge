@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'post_state.dart';
 
 class PostCubit extends Cubit<PostState> {
-  final PostRepository postRepository = PostRepository();
+  PostRepository postRepository = PostRepository();
 
   PostCubit() : super(PostState.initial());
 
